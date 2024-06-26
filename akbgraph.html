@@ -17,45 +17,26 @@
     <meta property="og:site_name" content="КЗЭР PowerTech">
     <link rel="shortcut icon" href="assets/images/favicon.svg" />
 
-    <!-- *************
-        ************ CSS Files *************
-    ************* -->
-    <!-- Icomoon Font Icons css -->
+    <!-- CSS Files -->
     <link rel="stylesheet" href="assets/fonts/icomoon/style.css" />
-
-    <!-- Main CSS -->
     <link rel="stylesheet" href="assets/css/main.min.css" />
-
-    <!-- *************
-        ************ Vendor Css Files *************
-    ************* -->
-
-    <!-- Scrollbar CSS -->
     <link rel="stylesheet" href="assets/vendor/overlay-scroll/OverlayScrollbars.min.css" />
-
-    <!-- Morris CSS -->
     <link rel="stylesheet" href="assets/vendor/morris/morris.css" />
 </head>
 
 <body>
 
-    <!-- Page wrapper start -->
     <div class="page-wrapper">
 
-        <!-- App container starts -->
         <div class="app-container">
 
-            <!-- App header starts -->
             <div class="app-header d-flex align-items-center">
 
-                <!-- Container starts -->
                 <div class="container">
 
-                    <!-- Row starts -->
                     <div class="row">
                         <div class="col-md-3 col-2">
 
-                            <!-- App brand starts -->
                             <div class="app-brand">
                                 <a href="index.html" class="d-lg-block d-none">
                                     <img src="assets/images/logo.svg" class="logo" alt="КЗЭР PowerTech" />
@@ -64,13 +45,10 @@
                                     <img src="assets/images/logo.svg" class="logo" alt="КЗЭР PowerTech" />
                                 </a>
                             </div>
-                            <!-- App brand ends -->
 
                         </div>
 
                         <div class="col-md-9 col-10">
-                            <!-- App header actions start -->
-                            <!-- App navbar starts -->
                             <nav class="navbar navbar-expand-lg p-0">
                                 <div class="container">
                                     <div class="offcanvas offcanvas-end" id="MobileMenu">
@@ -86,30 +64,19 @@
                                     </div>
                                 </div>
                             </nav>
-                            <!-- App Navbar ends -->
-                            <!-- Row ends -->
                         </div>
                     </div>
-                    <!-- Row ends -->
 
                 </div>
-                <!-- Container ends -->
 
             </div>
-            <!-- App header ends -->
 
-
-            <!-- App body starts -->
             <div class="app-body">
 
-                <!-- Container starts -->
                 <div class="container">
 
-                    <!-- Row start -->
                     <div class="row">
                         <div class="col-12 col-xl-6">
-
-                            <!-- Breadcrumb start -->
                             <ol class="breadcrumb mb-3">
                                 <li class="breadcrumb-item">
                                     <i class="icon-home lh-1"></i>
@@ -117,25 +84,22 @@
                                 </li>
                                 <li class="breadcrumb-item">График</li>
                             </ol>
-                            <!-- Breadcrumb end -->
                         </div>
                     </div>
-                    <!-- Row end -->
 
-                    <!-- Row start -->
                     <div class="row gx-2">
                         <div class="col-xl-12">
                             <div class="card mb-2">
                                 <div class="card-header d-flex align-items-center">
-                                    <h5 class="card-title">График акб</h5>
+                                    <h5 class="card-title" id="graphTitle">График акб №<span id="deviceId"></span></h5>
                                     <div class="ms-auto">
-                                        <select id="periodSelect" class="form-select form-select-sm" style="color: black;">
+                                        <select id="periodSelect" class="form-select form-select-sm">
                                             <option value="all">Все показания</option>
                                             <option value="1min">1 мин</option>
                                             <option value="5min">5 мин</option>
                                             <option value="10min">10 мин</option>
                                             <option value="30min">30 мин</option>
-                                            <option value="1hour">1 час</option>
+                                            <option value="1hour" selected>1 час</option> <!-- Default selected option -->
                                         </select>
                                     </div>
                                 </div>
@@ -154,155 +118,139 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Row end -->
 
                 </div>
-                <!-- Container ends -->
 
             </div>
-            <!-- App body ends -->
 
-            <!-- App footer start -->
             <div class="app-footer">
                 <div class="container">
                     <span>© КЗЭР PowerTech 2023</span>
                 </div>
             </div>
-            <!-- App footer end -->
 
         </div>
-        <!-- App container ends -->
 
     </div>
-    <!-- Page wrapper end -->
 
-    <!-- *************
-        ************ JavaScript Files *************
-    ************* -->
-    <!-- Required jQuery first, then Bootstrap Bundle JS -->
+    <!-- JavaScript Files -->
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/bootstrap.bundle.min.js"></script>
-
-    <!-- *************
-        ************ Vendor Js Files *************
-    ************* -->
-
-    <!-- Overlay Scroll JS -->
     <script src="assets/vendor/overlay-scroll/jquery.overlayScrollbars.min.js"></script>
     <script src="assets/vendor/overlay-scroll/custom-scrollbar.js"></script>
-
-    <!-- Morris Graphs -->
     <script src="assets/vendor/morris/raphael-min.js"></script>
     <script src="assets/vendor/morris/morris.min.js"></script>
-
-    <!-- Custom JS files -->
     <script src="assets/js/custom.js"></script>
 
     <script>
-        $(document).ready(function () {
-            function fetchGraphData(deviceId, startTime, endTime, period) {
-                const firebaseUrl = `https://powertech-e316a-default-rtdb.firebaseio.com/historyDevice/${deviceId}.json`;
-                $.get(firebaseUrl, function (data) {
-                    if (!data) {
-                        console.error('No data received from Firebase');
-                        return;
-                    }
-
-                    let dayData = [];
-                    let lastTime = 0;
-                    const periodMillis = getPeriodMillis(period);
-                    
-                    for (let recordId in data) {
-                        if (data.hasOwnProperty(recordId)) {
-                            let record = data[recordId];
-                            let recordTime = new Date(record.Timestamp).getTime();
-
-                            if ((!startTime || recordTime >= startTime) && (!endTime || recordTime <= endTime)) {
-                                if (period === 'all' || recordTime - lastTime >= periodMillis) {
-                                    dayData.push({
-                                        period: record.Timestamp,
-                                        voltage: parseFloat(record.Voltage/100),
-                                        current: parseFloat(record.Current/100),
-                                        temperature: parseFloat(record.Temperature/100),
-                                        cul: parseInt(record.Cul)
-                                    });
-                                    lastTime = recordTime;
-                                }
-                            }
-                        }
-                    }
-
-                    $('#dayData').empty(); // Clear the existing chart
-
-                    Morris.Line({
-                        element: 'dayData',
-                        data: dayData,
-                        xkey: 'period',
-                        ykeys: ['voltage', 'current', 'temperature', 'cul'],
-                        labels: ['Voltage (V)', 'Current (A)', 'Temperature (C)', 'Cul (%)'],
-                        resize: true,
-                        hideHover: 'auto',
-                        gridLineColor: 'rgba(0,0,0,.1)',
-                        lineColors: ['#ff4a43', '#a2d200', '#22beef', '#ff9426'],
-                        pointFillColors: ['#ffffff']
+        function fetchData(deviceId, period) {
+            const dbRef = firebase.database().ref('historyDevice/' + deviceId);
+            dbRef.once('value', (snapshot) => {
+                const data = [];
+                snapshot.forEach((childSnapshot) => {
+                    const entry = childSnapshot.val();
+                    data.push({
+                        period: entry.Timestamp,
+                        Voltage: entry.Voltage,
+                        Current: entry.Current,
+                        Temperature: entry.Temperature,
+                        Cul: entry.Cul
                     });
-                }).fail(function (error) {
-                    console.error('Error fetching data from Firebase:', error);
                 });
+
+                // Filter data based on selected period
+                const filteredData = filterData(data, period);
+
+                // Render the chart with filtered data
+                renderChart(filteredData);
+            });
+        }
+
+        function filterData(data, period) {
+            if (period === 'all') {
+                return data;
             }
 
-            function getPeriodMillis(period) {
-                switch (period) {
-                    case '1min': return 1 * 60 * 1000;
-                    case '5min': return 5 * 60 * 1000;
-                    case '10min': return 10 * 60 * 1000;
-                    case '30min': return 30 * 60 * 1000;
-                    case '1hour': return 60 * 60 * 1000;
-                    default: return 0;
+            const periodMap = {
+                '1min': 60000,
+                '5min': 300000,
+                '10min': 600000,
+                '30min': 1800000,
+                '1hour': 3600000
+            };
+            const periodMs = periodMap[period];
+
+            const filteredData = [];
+            let lastTimestamp = 0;
+
+            for (const entry of data) {
+                const entryTimestamp = new Date(entry.period).getTime();
+                if (entryTimestamp - lastTimestamp >= periodMs) {
+                    filteredData.push(entry);
+                    lastTimestamp = entryTimestamp;
                 }
             }
 
-            function getTimeRange(range) {
-                const now = new Date().getTime();
-                switch (range) {
-                    case 'allTime': return { startTime: null, endTime: null };
-                    case 'tenMinutes': return { startTime: now - 10 * 60 * 1000, endTime: now };
-                    case 'oneHour': return { startTime: now - 60 * 60 * 1000, endTime: now };
-                    case 'oneDay': return { startTime: now - 24 * 60 * 60 * 1000, endTime: now };
-                    case 'oneWeek': return { startTime: now - 7 * 24 * 60 * 60 * 1000, endTime: now };
-                    case 'oneMonth': return { startTime: now - 30 * 24 * 60 * 60 * 1000, endTime: now };
-                    case 'oneYear': return { startTime: now - 365 * 24 * 60 * 60 * 1000, endTime: now };
-                    default: return { startTime: null, endTime: null };
-                }
-            }
+            return filteredData;
+        }
 
-            function updateGraph(range, period) {
-                const deviceId = localStorage.deviceId;
-                if (!deviceId) {
-                    console.error('No device ID found in localStorage');
-                    return;
-                }
+        function renderChart(data) {
+            $('#dayData').empty(); // Clear existing chart
 
-                const timeRange = getTimeRange(range);
-                fetchGraphData(deviceId, timeRange.startTime, timeRange.endTime, period);
-            }
+            Morris.Line({
+                element: 'dayData',
+                data: data,
+                xkey: 'period',
+                ykeys: ['Voltage', 'Current', 'Temperature', 'Cul'],
+                labels: ['Voltage', 'Current', 'Temperature', 'Cul'],
+                resize: true,
+                hideHover: 'auto',
+                gridLineColor: 'rgba(255, 255, 255, .30)',
+                pointFillColors: ['#e94235', '#4285f4', '#fabb05', '#34a853'],
+                pointStrokeColors: ['#ffffff'],
+                lineColors: ['#e94235', '#4285f4', '#fabb05', '#34a853'],
+            });
+        }
 
-            $('.btn-group button').click(function () {
-                const range = $(this).attr('id');
-                const period = $('#periodSelect').val();
-                $('.btn-group button').removeClass('active');
-                $(this).addClass('active');
-                updateGraph(range, period);
+        $(document).ready(function () {
+            const deviceId = localStorage.getItem('deviceId');
+            $('#deviceId').text(deviceId);
+
+            const defaultPeriod = '1hour';
+            fetchData(deviceId, defaultPeriod);
+
+            $('#periodSelect').on('change', function () {
+                const selectedPeriod = $(this).val();
+                fetchData(deviceId, selectedPeriod);
             });
 
-            $('#periodSelect').change(function () {
-                const period = $(this).val();
-                const range = $('.btn-group button.active').attr('id') || 'allTime';
-                updateGraph(range, period);
+            $('#allTime').on('click', function () {
+                fetchData(deviceId, 'all');
             });
 
-            // Initialize graph with default settings
-            updateGraph('allTime', 'all');
+            $('#tenMinutes').on('click', function () {
+                fetchData(deviceId, '10min');
+            });
+
+            $('#oneHour').on('click', function () {
+                fetchData(deviceId, '1hour');
+            });
+
+            $('#oneDay').on('click', function () {
+                fetchData(deviceId, '1day');
+            });
+
+            $('#oneWeek').on('click', function () {
+                fetchData(deviceId, '1week');
+            });
+
+            $('#oneMonth').on('click', function () {
+                fetchData(deviceId, '1month');
+            });
+
+            $('#oneYear').on('click', function () {
+                fetchData(deviceId, '1year');
+            });
         });
     </script>
 </body>
