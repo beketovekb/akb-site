@@ -28,14 +28,21 @@ if (window.location.href.indexOf("index.html") === -1) {
     const email = emailInput.value;
     const password = passwordInput.value;
     const auth = firebase.auth();
-
-    // Авторизация пользователя
-    const promise = auth.signInWithEmailAndPassword(email, password);
-    promise.catch(e => alert(e.message));
-    
-    // window.location.replace("../../index.html");
+    firebase.auth().signInWithEmailAndPassword(email, password)
+  .then((userCredential) => {
+    // Signed in
+    var user = userCredential.user;
+    window.location.replace("../../index.html");
+    // ...
+  })
+  .catch((error) => {
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    alert(errorMessage);
+  });
   });
 }
+
 
 
 
@@ -57,3 +64,23 @@ firebase.auth().onAuthStateChanged(user => {
     }
   }
 });
+
+function provAuth() {
+  firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+      // Пользователь авторизован
+  
+      if (window.location.href.indexOf("index.html") === -1) {
+        console.log("User is logged in");
+        window.location.href = "../../index.html";
+      } // перенаправление на страницу после авторизации
+    } else {
+      // Пользователь не авторизован
+  
+      if (window.location.href.indexOf("login.html") === -1) {
+        console.log("User is logged out");
+        window.location.href = "login.html";
+      }
+    }
+  });
+}

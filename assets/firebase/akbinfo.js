@@ -75,6 +75,9 @@ function updateData(snapshot) {
         button.style.marginLeft = 'auto';
         button.style.marginRight = '0';
         button.textContent = 'График';
+        button.onclick = function() {
+            redakbgraph(deviceId);
+        };
         item5.appendChild(button);
 
         listGroup.appendChild(item1);
@@ -103,3 +106,9 @@ function fetchAndDisplayData() {
 }
 
 document.addEventListener('DOMContentLoaded', fetchAndDisplayData);
+
+function redakbgraph(id)
+{
+    localStorage.setItem('deviceId', id);
+    window.location.replace("/akbgraph.html");
+}
