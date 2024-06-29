@@ -160,9 +160,9 @@
                     const entry = childSnapshot.val();
                     data.push({
                         period: entry.Timestamp,
-                        Voltage: entry.Voltage,
-                        Current: entry.Current,
-                        Temperature: entry.Temperature,
+                        Voltage: entry.Voltage/100,
+                        Current: entry.Current/100,
+                        Temperature: entry.Temperature/100,
                         Cul: entry.Cul
                     });
                 });
@@ -211,7 +211,7 @@
                 data: data,
                 xkey: 'period',
                 ykeys: ['Voltage', 'Current', 'Temperature', 'Cul'],
-                labels: ['Voltage', 'Current', 'Temperature', 'Cul'],
+                labels: ['Напряжение', 'Сила тока', 'Температура', 'Уровень заряда'],
                 resize: true,
                 hideHover: 'auto',
                 gridLineColor: 'rgba(255, 255, 255, .30)',
