@@ -5,6 +5,12 @@ function updateData(snapshot) {
     snapshot.forEach(function(childSnapshot) {
         var deviceId = childSnapshot.key;
         var deviceData = childSnapshot.val();
+        
+        // Получаем текущую временную метку
+        var currentTimestamp = Date.now();
+        // Проверяем последнюю запись
+        var lastEntryTimestamp = new Date(deviceData.Timestamp).getTime();
+        var onlineStatus = (currentTimestamp - lastEntryTimestamp) <= 60000 ? 'Онлайн' : 'Оффлайн'; // 5 минут (300000 мс)
 
         var col = document.createElement('div');
         col.className = 'col-sm-6 col-12';
@@ -35,7 +41,15 @@ function updateData(snapshot) {
         
         var listGroup = document.createElement('ul');
         listGroup.className = 'list-group';
-        
+
+        var itemStatus = document.createElement('li');
+        itemStatus.className = 'list-group-item d-flex justify-content-between align-items-center';
+        itemStatus.textContent = 'Статус';
+        var badgeStatus = document.createElement('span');
+        badgeStatus.className = onlineStatus === 'Онлайн' ? 'badge bg-success' : 'badge bg-danger';
+        badgeStatus.textContent = onlineStatus;
+        itemStatus.appendChild(badgeStatus);
+
         var item1 = document.createElement('li');
         item1.className = 'list-group-item d-flex justify-content-between align-items-center';
         item1.textContent = 'Заряд акб';
@@ -44,20 +58,20 @@ function updateData(snapshot) {
         badge1.textContent = deviceData.Cul + ' %';
         item1.appendChild(badge1);
         
-        var item2 = document.createElement('li');
-        item2.className = 'list-group-item d-flex justify-content-between align-items-center';
-        item2.textContent = 'Сила тока';
-        var badge2 = document.createElement('span');
-        badge2.className = 'badge bg-primary';
-        badge2.textContent = deviceData.Current/100 + ' А';
-        item2.appendChild(badge2);
+        // var item2 = document.createElement('li');
+        // item2.className = 'list-group-item d-flex justify-content-between align-items-center';
+        // item2.textContent = 'Сила тока';
+        // var badge2 = document.createElement('span');
+        // badge2.className = 'badge bg-primary';
+        // badge2.textContent = deviceData.Current + ' А';
+        // item2.appendChild(badge2);
         
         var item3 = document.createElement('li');
         item3.className = 'list-group-item d-flex justify-content-between align-items-center';
         item3.textContent = 'Напряжение';
         var badge3 = document.createElement('span');
         badge3.className = 'badge bg-primary';
-        badge3.textContent = deviceData.Voltage/100 + ' В';
+        badge3.textContent = deviceData.Voltage + ' В';
         item3.appendChild(badge3);
         
         var item4 = document.createElement('li');
@@ -65,11 +79,27 @@ function updateData(snapshot) {
         item4.textContent = 'Температура';
         var badge4 = document.createElement('span');
         badge4.className = 'badge bg-primary';
-        badge4.textContent = deviceData.Temperature/100 + ' С';
+        badge4.textContent = deviceData.Temperature  + ' С';
         item4.appendChild(badge4);
 
         var item5 = document.createElement('li');
         item5.className = 'list-group-item d-flex justify-content-between align-items-center';
+        item5.textContent = 'Напряжение 220';
+        var badge5 = document.createElement('span');
+        badge5.className = 'badge bg-primary';
+        badge5.textContent = deviceData.Voltage220  + ' В';
+        item5.appendChild(badge5);
+
+        var item7 = document.createElement('li');
+        item7.className = 'list-group-item d-flex justify-content-between align-items-center';
+        item7.textContent = 'Сила тока 220';
+        var badge7 = document.createElement('span');
+        badge7.className = 'badge bg-primary';
+        badge7.textContent = deviceData.Current + ' А';
+        item7.appendChild(badge7);
+
+        var item6 = document.createElement('li');
+        item6.className = 'list-group-item d-flex justify-content-between align-items-center';
         var button = document.createElement('button');
         button.className = 'btn btn-primary btn-lg';
         button.style.marginLeft = 'auto';
@@ -78,13 +108,16 @@ function updateData(snapshot) {
         button.onclick = function() {
             redakbgraph(deviceId);
         };
-        item5.appendChild(button);
+        item6.appendChild(button);
 
-        listGroup.appendChild(item1);
-        listGroup.appendChild(item2);
+        listGroup.appendChild(itemStatus);
+        // listGroup.appendChild(item1);
+        // listGroup.appendChild(item2);
         listGroup.appendChild(item3);
         listGroup.appendChild(item4);
         listGroup.appendChild(item5);
+        listGroup.appendChild(item7);
+        listGroup.appendChild(item6);
         
         infoDiv.appendChild(listGroup);
         alignStart.appendChild(img);
@@ -107,8 +140,7 @@ function fetchAndDisplayData() {
 
 document.addEventListener('DOMContentLoaded', fetchAndDisplayData);
 
-function redakbgraph(id)
-{
+function redakbgraph(id) {
     localStorage.setItem('deviceId', id);
     window.location.replace("/akbgraph.html");
 }
