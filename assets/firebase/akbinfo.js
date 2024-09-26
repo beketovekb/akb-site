@@ -95,7 +95,7 @@ function updateData(snapshot) {
         item7.textContent = 'Сила тока 220';
         var badge7 = document.createElement('span');
         badge7.className = 'badge bg-primary';
-        badge7.textContent = deviceData.Current + ' А';
+        badge7.textContent = deviceData.Power220 + ' А';
         item7.appendChild(badge7);
 
         var item6 = document.createElement('li');
